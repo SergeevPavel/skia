@@ -14,6 +14,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkRandom.h"
 #include "modules/skparagraph/include/Paragraph.h"
+#include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
@@ -3994,6 +3995,70 @@ protected:
 private:
     using INHERITED = Sample;
 };
+
+
+class ParagraphView69 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("ParagraphView69"); }
+
+    std::unique_ptr<Paragraph> paragraphWithRastrSettings(sk_sp<FontCollection> fontCollection,
+                                                          const char* text,
+                                                          SkFont::Edging edging,
+                                                          SkFontHinting hinting,
+                                                          bool subpixel) {
+        FontRastrSettings fontRastrSettings;
+        fontRastrSettings.fEdging = edging;
+        fontRastrSettings.fHinting = hinting;
+        fontRastrSettings.fSubpixel = subpixel;
+
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setFontRastrSettings(fontRastrSettings);
+        TextStyle textStyle;
+        textStyle.setFontFamilies({SkString("Roboto")});
+        textStyle.setFontSize(14.0);
+        textStyle.setColor(SK_ColorBLACK);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        builder.pushStyle(textStyle);
+        builder.addText(text);
+        return builder.Build();
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+      canvas->drawColor(SK_ColorWHITE);
+
+      auto fontCollection =
+          sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
+
+      auto paragraph1 = paragraphWithRastrSettings(fontCollection, "Lorien Ipsum [kAntiAlias, SkFontHinting::kSlight, subpixel: true] [default]",
+                                                   SkFont::Edging::kAntiAlias,
+                                                   SkFontHinting::kSlight,
+                                                   true);
+
+      auto paragraph2 = paragraphWithRastrSettings(fontCollection, "Lorien Ipsum [kSubpixelAntiAlias, SkFontHinting::kFull, subpixel: true]",
+                                                   SkFont::Edging::kSubpixelAntiAlias,
+                                                   SkFontHinting::kFull,
+                                                   true);
+
+      auto paragraph3 = paragraphWithRastrSettings(fontCollection, "Lorien Ipsum [kSubpixelAntiAlias, SkFontHinting::kFull, subpixel: false]",
+                                                   SkFont::Edging::kSubpixelAntiAlias,
+                                                   SkFontHinting::kFull,
+                                                   false);
+
+      paragraph1->layout(600);
+      paragraph1->paint(canvas, 0, 0);
+      paragraph2->layout(600);
+      paragraph2->paint(canvas, 0, 40);
+      paragraph3->layout(600);
+      paragraph3->paint(canvas, 0, 80);
+  }
+
+
+private:
+    using INHERITED = Sample;
+};
+
+
 }  // namespace
 
 //////////////////////////////////////////////////////////////////////////////
@@ -4063,4 +4128,5 @@ DEF_SAMPLE(return new ParagraphView65();)
 DEF_SAMPLE(return new ParagraphView66();)
 DEF_SAMPLE(return new ParagraphView67();)
 DEF_SAMPLE(return new ParagraphView68();)
+DEF_SAMPLE(return new ParagraphView69();)
 DEF_SAMPLE(return new ParagraphViewLast();)
