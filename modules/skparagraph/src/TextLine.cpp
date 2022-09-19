@@ -701,6 +701,7 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
         }
         return result;
     }
+    TextRange origTextRange = textRange;
     // Find [start:end] clusters for the text
     Cluster* start = nullptr;
     Cluster* end = nullptr;
@@ -774,8 +775,8 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
     // TODO: This is where we get smart about selecting a part of a cluster
     //  by shaping each grapheme separately and then use the result sizes
     //  to calculate the proportions
-    auto leftCorrection = start->sizeToChar(textRange.start);
-    auto rightCorrection = end->sizeFromChar(textRange.end - 1);
+    auto leftCorrection = start->sizeToChar(origTextRange.start);
+    auto rightCorrection = end->sizeFromChar(origTextRange.end - 1);
     result.clip.fLeft += leftCorrection;
     result.clip.fRight -= rightCorrection;
     result.clippingNeeded = leftCorrection != 0 || rightCorrection != 0;
@@ -1340,6 +1341,27 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                 // Find the grapheme range that contains the point
                 auto clusterIndex8 = context.run->globalClusterIndex(found);
                 auto clusterEnd8 = context.run->globalClusterIndex(found + 1);
+
+                size_t charsInCluster = 0;
+                for (auto i = clusterIndex8; i < clusterEnd8; i++) {
+                    i = run->owner()->findNextGraphemeBoundary(i);
+                    if (i < clusterEnd8) charsInCluster++;
+                }
+
+                // Calculate offset for a character inside a ligature (e.g. ff or ffi)
+                // Considering all characters in the ligature have equal width
+                if (glyphemePosWidth > 0 && charsInCluster > 1) {
+                    glyphemePosWidth /= charsInCluster;
+                    size_t charIndexInCluster = std::floor((dx - glyphemePosLeft) / glyphemePosWidth);
+                    if (!context.run->leftToRight()) {
+                        charIndexInCluster = charsInCluster - charIndexInCluster;
+                    }
+                    glyphemePosLeft += charIndexInCluster * glyphemePosWidth;
+                    for (size_t i = 0; i < charIndexInCluster; i++) {
+                        clusterIndex8 = run->owner()->findNextGraphemeBoundary(clusterIndex8 + 1);
+                    }
+                    clusterEnd8 = run->owner()->findNextGraphemeBoundary(clusterIndex8 + 1);
+                }
 
                 SkScalar center = glyphemePosLeft + glyphemePosWidth / 2;
                 if ((dx < center) == context.run->leftToRight()) {
