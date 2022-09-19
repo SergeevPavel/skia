@@ -75,6 +75,25 @@ private:
     bool fHalfLeading;
 };
 
+struct TextIndent {
+    TextIndent();
+
+    bool operator==(const TextIndent& rhs) const {
+        return this->fFirstLine == rhs.fFirstLine &&
+               this->fRestLine == rhs.fRestLine;
+    }
+
+    SkScalar getFirstLine() const { return fFirstLine; }
+    void setFirstLine(SkScalar firstLine) { fFirstLine = firstLine; }
+
+    SkScalar getRestLine() const { return fRestLine; }
+    void setRestLine(SkScalar restLine) { fRestLine = restLine; }
+
+private:
+    SkScalar fFirstLine;
+    SkScalar fRestLine;
+};
+
 struct ParagraphStyle {
     ParagraphStyle();
 
@@ -84,6 +103,7 @@ struct ParagraphStyle {
                this->fEllipsisUtf16 == rhs.fEllipsisUtf16 &&
                this->fTextDirection == rhs.fTextDirection && this->fTextAlign == rhs.fTextAlign &&
                this->fDefaultTextStyle == rhs.fDefaultTextStyle &&
+               this->fTextIndent == rhs.fTextIndent &&
                this->fReplaceTabCharacters == rhs.fReplaceTabCharacters;
     }
 
@@ -124,6 +144,9 @@ struct ParagraphStyle {
     bool getReplaceTabCharacters() const { return fReplaceTabCharacters; }
     void setReplaceTabCharacters(bool value) { fReplaceTabCharacters = value; }
 
+    const TextIndent& getTextIndent() const { return fTextIndent; }
+    void setTextIndent(TextIndent textIndent) { fTextIndent = textIndent; }
+
 private:
     StrutStyle fStrutStyle;
     TextStyle fDefaultTextStyle;
@@ -136,6 +159,7 @@ private:
     TextHeightBehavior fTextHeightBehavior;
     bool fHintingIsOn;
     bool fReplaceTabCharacters;
+    TextIndent fTextIndent;
 };
 }  // namespace textlayout
 }  // namespace skia
