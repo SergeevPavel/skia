@@ -12,6 +12,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include <string>
 
 #define GR_D3D_CALL_ERRCHECK(X)                                         \
     do {                                                                \
