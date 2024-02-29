@@ -34,10 +34,11 @@ if (skia_use_system_icu) {
   } else {
     data_dir += "common"
   }
+  # JB NOTE: we use _skiko suffix for ICU symbols to avoid the clashes with Apple SDK symbols
   action("make_data_assembly") {
     if (target_cpu == "wasm") {
       _u_icu_version_major_num =
-          "69"  # defined in source/common/unicode/uvernum.h
+          "_skiko69"  # defined in source/common/unicode/uvernum.h
       script = "make_data_cpp.py"
       inputs = [ "$data_dir/icudtl.dat" ]
       outputs = [ data_assembly ]
@@ -47,7 +48,11 @@ if (skia_use_system_icu) {
         rebase_path(data_assembly, root_build_dir),
       ]
     } else {
-      script = "../externals/icu/scripts/make_data_assembly.py"
+      # The original script was:
+      # script = "../externals/icu/scripts/make_data_assembly.py"
+      # We can't modify it because it's checked-out from ICU repo for every build.
+      # Therefore we have a copy for skiko purposes:
+      script = "make_data_assembly_for_skiko.py"
       inputs = [ "$data_dir/icudtl.dat" ]
       outputs = [ "$data_assembly" ]
       args = [
@@ -68,7 +73,10 @@ if (skia_use_system_icu) {
     ]
     public_defines = [
       "U_USING_ICU_NAMESPACE=0",
-      "U_DISABLE_RENAMING",
+      "U_DISABLE_RENAMING=0",
+      "U_HAVE_LIB_SUFFIX=1",
+      "U_DISABLE_VERSION_SUFFIX=1",
+      "U_LIB_SUFFIX_C_NAME=_skiko",
     ]
   }
 
@@ -80,8 +88,11 @@ if (skia_use_system_icu) {
     ]
     public_defines = [
       "U_USING_ICU_NAMESPACE=0",
-      "U_DISABLE_RENAMING",
+      "U_DISABLE_RENAMING=0",
       "SK_USING_THIRD_PARTY_ICU",
+      "U_HAVE_LIB_SUFFIX=1",
+      "U_DISABLE_VERSION_SUFFIX=1",
+      "U_LIB_SUFFIX_C_NAME=_skiko",
     ]
     configs = [ "//gn/portable:add_rtti" ]
     defines = [
