@@ -29,7 +29,7 @@ jobs:
       - name: Build skia DM
         run: |
           bin/gn gen out/Debug
-          ./third_party/ninja/ninja -C out/Debug dm
+          ./third_party/ninja/ninja -C out/Debug dm -j 8
 
       - name: Run tests
         run: |
