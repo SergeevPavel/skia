@@ -28,8 +28,8 @@ jobs:
         run: |
           python3 tools/git-sync-deps
 
-      - name: Make test script executable
-        run: chmod +x run_tests_for_skiko.sh
+      - name: Install ninja
+        run: python3 bin/fetch-ninja
 
       - name: Run tests
         run: |
