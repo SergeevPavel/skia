@@ -31,6 +31,11 @@ jobs:
       - name: Install ninja
         run: python3 bin/fetch-ninja
 
+      - name: Build skia DM
+        run: | 
+          bin/gn gen out/Debug
+          ./third_party/ninja/ninja -C out/Debug dm
+
       - name: Run tests
         run: |
           set +e
