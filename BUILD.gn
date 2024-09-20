@@ -2276,7 +2276,7 @@ if (skia_enable_tools) {
   }
 
   import("gn/tests.gni")
-  import("gn/skiko_tests.gni")
+  import("skiko_tests/skiko_tests.gni")
   test_lib("tests") {
     sources = tests_sources + pathops_tests_sources + skiko_tests_sources
     frameworks = []
