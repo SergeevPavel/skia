@@ -2476,8 +2476,9 @@ if (skia_enable_tools) {
   }
 
   import("gn/tests.gni")
+  import("skiko_tests/skiko_tests.gni")
   test_lib("tests") {
-    sources = tests_sources + pathops_tests_sources
+    sources = tests_sources + pathops_tests_sources + skiko_tests_sources
     frameworks = []
     if (skia_use_metal) {
       sources += metal_tests_sources
@@ -2527,6 +2528,7 @@ if (skia_enable_tools) {
       ":typeface_fontations_tests",
       "modules/bentleyottmann:tests",
       "modules/skottie:tests",
+      "modules/skparagraph",
       "modules/skparagraph:tests",
       "modules/sksg:tests",
       "modules/skshaper",
